@@ -64,14 +64,9 @@ json-java is licensed under Apache 2.0.
 implementation group: 'com.neko233', name: 'json-java', version: '0.0.1'
 ```
 
-# API
-
-String json = JSON.serialize(object)
-
-T obj = JSON.deserialize(text, Class<T> clazz)
 
 # Code
-
+## Demo 
 ```java
         String serialize = JSON.serialize(person);
         Person rePerson = JSON.deserialize(serialize, Person.class);
