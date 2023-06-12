@@ -1,6 +1,8 @@
 package com.neko233.json.convert;
 
-public interface ConvertConfig {
+public interface JsonConfig {
+
+    boolean isPretty();
 
     /**
      * 是否支持这个类型

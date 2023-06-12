@@ -1,21 +1,20 @@
 package com.neko233.json.utils;
 
-import com.neko233.skilltree.commons.core.base.ListUtils233;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * 删除 char 不在特殊内容中
+ *
  * @author SolarisNeko on 2023-06-02
  **/
 public class TextTokenUtils {
 
     public static String removeCharInTargetRange(String input) {
         return removeCharInTargetRange(input,
-                ListUtils233.of('\n', '\t', ' '),
-                ListUtils233.of('\'', '"')
+                ListUtilsForJson.of('\n', '\t', ' '),
+                ListUtilsForJson.of('\'', '"')
         );
     }
 

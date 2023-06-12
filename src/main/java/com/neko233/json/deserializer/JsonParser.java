@@ -1,12 +1,10 @@
 package com.neko233.json.deserializer;
 
+import com.neko233.json.constant.JsonConstant;
+import com.neko233.json.utils.StringUtilsForJson;
 import com.neko233.json.utils.TextTokenUtils;
-import com.neko233.skilltree.commons.core.base.StringUtils233;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class JsonParser {
 
@@ -14,7 +12,7 @@ public class JsonParser {
     private String jsonString;
 
     public List<Map<String, Object>> parseJson(String json) {
-        if (StringUtils233.isBlank(json)) {
+        if (StringUtilsForJson.isBlank(json)) {
             return null;
         }
 
@@ -34,6 +32,12 @@ public class JsonParser {
                 if (item instanceof Map) {
                     // 已经是 Map 类型，直接添加到结果列表
                     resultList.add((Map<String, Object>) item);
+                    continue;
+                }
+                if (item instanceof Number
+                        || item instanceof String
+                        || item instanceof Boolean) {
+                    resultList.add(Collections.singletonMap(JsonConstant.DEFAULT_VALUE_KEY, item));
                 }
             }
         }

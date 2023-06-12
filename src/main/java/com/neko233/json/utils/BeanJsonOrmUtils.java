@@ -1,9 +1,8 @@
 package com.neko233.json.utils;
 
-import com.neko233.json.convert.ConvertConfig;
-import com.neko233.json.convert.NoConvertConfig;
-import com.neko233.json.exception.DeserializeJsonException;
-import com.neko233.skilltree.commons.core.annotation.Nullable;
+import com.neko233.json.constant.JsonConstant;
+import com.neko233.json.convert.JsonConfig;
+import com.neko233.json.convert.DefaultJsonConfig;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -15,7 +14,7 @@ import java.util.stream.Collectors;
 public class BeanJsonOrmUtils {
 
     public static <T> T mapToBeanAny(Map<String, Object> map,
-                                      Class<?> clazz) throws Exception {
+                                     Class<?> clazz) throws Exception {
         return mapToBean(map, clazz, null);
     }
 
@@ -26,8 +25,14 @@ public class BeanJsonOrmUtils {
 
     public static <T> T mapToBean(Map<String, Object> map,
                                   Class<?> clazz,
-                                  @Nullable ConvertConfig config) throws Exception {
-        config = config == null ? NoConvertConfig.instance : config;
+                                  JsonConfig config) throws Exception {
+        config = config == null ? DefaultJsonConfig.instance : config;
+
+        if (clazz == String.class
+                || clazz.isAssignableFrom(Number.class)) {
+            return (T) map.get(JsonConstant.DEFAULT_VALUE_KEY);
+        }
+
         Constructor<T> constructor = (Constructor<T>) clazz.getConstructor();
         constructor.setAccessible(true);
         T instance = constructor.newInstance();
@@ -51,9 +56,10 @@ public class BeanJsonOrmUtils {
         return instance;
     }
 
+
     private static Object convertValue(Field field,
                                        Object jsonValue,
-                                       ConvertConfig config) throws Exception {
+                                       JsonConfig config) throws Exception {
         if (jsonValue == null) {
             return null;
         }
@@ -62,6 +68,16 @@ public class BeanJsonOrmUtils {
 
         Class<?> jsonType = jsonValue.getClass();
 
+        if (fieldType.isEnum()) {
+            if (jsonValue instanceof String) {
+                return EnumUtilsForJson.getEnumByName(fieldType, String.valueOf(jsonValue));
+            }
+            if (jsonValue instanceof Number) {
+                int ordinal = Integer.parseInt(StringUtilsForJson.trim(String.valueOf(jsonValue)));
+                return EnumUtilsForJson.getEnumByOrdinal(fieldType, ordinal);
+            }
+            return null;
+        }
 
         if (List.class.isAssignableFrom(fieldType)) {
             Type genericType = field.getGenericType();
@@ -77,7 +93,7 @@ public class BeanJsonOrmUtils {
                                 try {
                                     return BeanJsonOrmUtils.mapToBeanAny(obj, listElementType);
                                 } catch (Exception e) {
-                                    throw new DeserializeJsonException(e);
+                                    throw new RuntimeException(e);
                                 }
                             })
                             .collect(Collectors.toList());
@@ -97,7 +113,7 @@ public class BeanJsonOrmUtils {
                                 try {
                                     return BeanJsonOrmUtils.mapToBeanAny(obj, setElementType);
                                 } catch (Exception e) {
-                                    throw new DeserializeJsonException(e);
+                                    throw new RuntimeException(e);
                                 }
                             })
                             .collect(Collectors.toSet());
@@ -151,14 +167,19 @@ public class BeanJsonOrmUtils {
         }
 
         // [Special] json 的数值, 特殊兼容
+        if (fieldType == Short.class || fieldType == short.class) {
+            if (jsonValue instanceof Long) {
+                return Short.parseShort(String.valueOf(jsonValue));
+            }
+        }
         if (fieldType == Integer.class || fieldType == int.class) {
             if (jsonValue instanceof Long) {
                 return Integer.parseInt(String.valueOf(jsonValue));
             }
         }
-        if (fieldType == Short.class || fieldType == short.class) {
+        if (fieldType == Long.class || fieldType == long.class) {
             if (jsonValue instanceof Long) {
-                return Short.parseShort(String.valueOf(jsonValue));
+                return jsonValue;
             }
         }
         if (fieldType == Float.class || fieldType == float.class) {
@@ -170,6 +191,12 @@ public class BeanJsonOrmUtils {
             if (jsonValue instanceof Double) {
                 return Double.parseDouble(String.valueOf(jsonValue));
             }
+        }
+        if (fieldType == Boolean.class || fieldType == boolean.class) {
+            if (jsonValue instanceof Boolean) {
+                return jsonValue;
+            }
+            return null;
         }
 
         throw new IllegalArgumentException("不支持的转换类型. Unsupported conversion from " + jsonValue.getClass() + " to " + fieldType);

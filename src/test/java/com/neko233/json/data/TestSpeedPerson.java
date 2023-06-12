@@ -13,7 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Person {
+public class TestSpeedPerson {
 
     private String name;
     private int age;

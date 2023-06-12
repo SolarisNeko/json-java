@@ -1,97 +1,150 @@
-
 package com.neko233.json.serializer;
+
+import com.neko233.json.convert.JsonConfig;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 
 public class JsonSerializer {
-    public static String serialize(Object obj) {
-        StringBuilder json = new StringBuilder();
-        serialize(obj, json);
-        return json.toString();
+
+    private JsonConfig jsonConfig;
+
+    public JsonSerializer(JsonConfig jsonConfig) {
+        this.jsonConfig = jsonConfig;
     }
 
-    private static void serialize(Object obj,
-                                  StringBuilder json) {
+    public String serialize(Object obj) {
+        StringBuilder jsonBuilder = new StringBuilder();
+        serialize(obj, jsonBuilder);
+        return jsonBuilder.toString();
+    }
+
+    private void serialize(Object obj,
+                           StringBuilder jsonBuilder) {
         if (obj == null) {
-            json.append("null");
+            return;
+        }
+
+        if (obj == null) {
+            jsonBuilder.append("null");
         } else if (obj instanceof String) {
-            json.append("\"").append(escapeString((String) obj)).append("\"");
+            // base
+            jsonBuilder.append("\"").append(escapeString((String) obj)).append("\"");
         } else if (obj instanceof Number || obj instanceof Boolean) {
-            json.append(obj.toString());
+            // base
+            jsonBuilder.append(obj.toString());
         } else if (obj instanceof Collection<?>) {
-            serializeCollection((Collection<?>) obj, json);
+            serializeCollection((Collection<?>) obj, jsonBuilder);
         } else if (obj instanceof Map<?, ?>) {
-            serializeMap((Map<?, ?>) obj, json);
+            serializeMap((Map<?, ?>) obj, jsonBuilder);
         } else {
-            serializeObject(obj, json);
+            serializeObject(obj, jsonBuilder);
         }
     }
 
-    private static void serializeCollection(Collection<?> collection,
-                                            StringBuilder json) {
-        json.append("[");
+    private void serializeEnum(Enum<?> obj, StringBuilder jsonBuilder) {
+        jsonBuilder.append("{");
+
+        String escapeKey = escapeString(obj.name());
+        jsonBuilder.append("\"")
+                .append(escapeKey)
+                .append("\":")
+                .append(obj.ordinal())
+        ;
+
+        jsonBuilder.append("}");
+    }
+
+    private void serializeCollection(Collection<?> collection,
+                                     StringBuilder jsonBuilder) {
+        jsonBuilder.append("[");
         boolean first = true;
 
         for (Object item : collection) {
             if (first) {
                 first = false;
             } else {
-                json.append(",");
+                jsonBuilder.append(",");
             }
-            serialize(item, json);
+
+            // recursive
+            serialize(item, jsonBuilder);
         }
 
-        json.append("]");
+        jsonBuilder.append("]");
     }
 
-    private static void serializeMap(Map<?, ?> map,
-                                     StringBuilder json) {
-        json.append("{");
+    private void serializeMap(Map<?, ?> map,
+                              StringBuilder jsonBuilder) {
+        jsonBuilder.append("{");
         boolean first = true;
 
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             if (first) {
                 first = false;
             } else {
-                json.append(",");
+                jsonBuilder.append(",");
             }
-            json.append("\"").append(escapeString(entry.getKey().toString())).append("\":");
-            serialize(entry.getValue(), json);
+            jsonBuilder.append("\"").append(escapeString(entry.getKey().toString())).append("\":");
+
+            // recursive
+            serialize(entry.getValue(), jsonBuilder);
         }
 
-        json.append("}");
+        jsonBuilder.append("}");
     }
 
-    private static void serializeObject(Object obj,
-                                        StringBuilder json) {
-        json.append("{");
+    private void serializeObject(Object obj,
+                                 StringBuilder jsonBuilder) {
+        jsonBuilder.append("{");
         boolean first = true;
 
         for (Field field : obj.getClass().getDeclaredFields()) {
             field.setAccessible(true);
-            Object value;
 
+            Object value;
             try {
                 value = field.get(obj);
             } catch (IllegalAccessException e) {
                 continue;
             }
 
+            // enum 比较特殊 | 优先用 enum index
+            if (value instanceof Enum<?>) {
+                value = ((Enum<?>) value).ordinal();
+//                value = ((Enum<?>) value).name();
+            }
+
+            // avoid circle-ref, just address check
+            if (value == obj) {
+                continue;
+            }
+
             if (first) {
                 first = false;
             } else {
-                json.append(",");
+                jsonBuilder.append(",");
             }
-            json.append("\"").append(escapeString(field.getName())).append("\":");
-            serialize(value, json);
+
+            String escapeKey = escapeString(field.getName());
+
+            // key
+            jsonBuilder.append("\"").append(escapeKey).append("\":");
+            // recursive
+            serialize(value, jsonBuilder);
         }
 
-        json.append("}");
+        jsonBuilder.append("}");
     }
 
-    private static String escapeString(String str) {
+    /**
+     * 转义字符串
+     *
+     * @param str 原字符串
+     * @return 内容
+     */
+    private String escapeString(String str) {
         StringBuilder sb = new StringBuilder();
 
         for (char c : str.toCharArray()) {

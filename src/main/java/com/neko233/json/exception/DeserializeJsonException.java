@@ -1,6 +1,7 @@
 package com.neko233.json.exception;
 
-import com.neko233.skilltree.commons.core.base.StringUtils233;
+
+import com.neko233.json.utils.StringUtilsForJson;
 
 /**
  * @author SolarisNeko
@@ -17,7 +18,7 @@ public class DeserializeJsonException extends RuntimeException {
     public DeserializeJsonException(Exception e,
                                     String msg,
                                     Object... objects) {
-        super(StringUtils233.format(msg, objects), e);
+        super(StringUtilsForJson.format(msg, objects), e);
     }
 
     public DeserializeJsonException(Exception e) {

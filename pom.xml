@@ -5,7 +5,7 @@
 
     <groupId>com.neko233</groupId>
     <artifactId>json-java</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
 
     <name>json-java</name>
     <url>https://github.com/SolarisNeko/json-java/tree/main</url>
@@ -46,6 +46,20 @@
 
     <dependencies>
 
+
+        <dependency>
+            <groupId>org.realityforge.org.jetbrains.annotations</groupId>
+            <artifactId>org.jetbrains.annotations</artifactId>
+            <version>1.7.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- Util -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -55,9 +69,17 @@
         </dependency>
 
         <dependency>
-            <groupId>com.neko233</groupId>
-            <artifactId>skilltree-commons-core</artifactId>
-            <version>0.0.6</version>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>1.19</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>1.19</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- Test -->
