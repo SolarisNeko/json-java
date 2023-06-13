@@ -1,17 +1,30 @@
 package com.neko233.json.utils;
 
 import com.neko233.json.constant.JsonConstant;
-import com.neko233.json.convert.JsonConfig;
 import com.neko233.json.convert.DefaultJsonConfig;
+import com.neko233.json.convert.JsonConfig;
+import com.neko233.json.exception.DeserializeJsonException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class BeanJsonOrmUtils {
+
+    public static final String DATE_TIME_FORMATTER = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_FORMATTER = "yyyy-MM-dd 00:00:00";
 
     public static <T> T mapToBeanAny(Map<String, Object> map,
                                      Class<?> clazz) throws Exception {
@@ -29,8 +42,9 @@ public class BeanJsonOrmUtils {
         config = config == null ? DefaultJsonConfig.instance : config;
 
         if (clazz == String.class
-                || clazz.isAssignableFrom(Number.class)) {
-            return (T) map.get(JsonConstant.DEFAULT_VALUE_KEY);
+                || Number.class.isAssignableFrom(clazz)) {
+            Object o = map.get(JsonConstant.DEFAULT_VALUE_KEY);
+            return (T) config.castValueToClassType(o, clazz);
         }
 
         Constructor<T> constructor = (Constructor<T>) clazz.getConstructor();
@@ -38,14 +52,14 @@ public class BeanJsonOrmUtils {
         T instance = constructor.newInstance();
 
         for (Map.Entry<String, Object> entry : map.entrySet()) {
-            String fieldName = entry.getKey();
-            Object fieldValue = entry.getValue();
+            String jsonName = entry.getKey();
+            Object jsonValue = entry.getValue();
 
             try {
-                Field field = clazz.getDeclaredField(fieldName);
+                Field field = clazz.getDeclaredField(jsonName);
                 field.setAccessible(true);
 
-                Object convertedValue = convertValue(field, fieldValue, config);
+                Object convertedValue = convertValue(field, jsonValue, config);
                 field.set(instance, convertedValue);
             } catch (NoSuchFieldException e) {
                 // 如果 Map 中的 key 不存在于目标类的字段中，可以选择忽略或者处理该异常
@@ -65,6 +79,10 @@ public class BeanJsonOrmUtils {
         }
 
         Class<?> fieldType = field.getType();
+        Object fieldValue = config.handleByYourDiyType(fieldType, jsonValue);
+        if (fieldValue != null) {
+            return fieldValue;
+        }
 
         Class<?> jsonType = jsonValue.getClass();
 
@@ -198,8 +216,40 @@ public class BeanJsonOrmUtils {
             }
             return null;
         }
+        // jdk advanced data struct
+        if (fieldType == Date.class) {
+            if (jsonValue instanceof String) {
+                SimpleDateFormat formatter = new SimpleDateFormat(DATE_TIME_FORMATTER);
+                try {
+                    return formatter.parse(String.valueOf(jsonValue));
+                } catch (ParseException e) {
+                    throw new DeserializeJsonException(e, "date 的 string 格式不是 yyyy-MM-dd HH:mm:ss. jsonValue = {}", jsonValue);
+                }
+            }
+            if (jsonValue instanceof Long) {
+                return new Date((Long) jsonValue);
+            }
+            return null;
+        }
+        if (fieldType == LocalDateTime.class) {
+            if (jsonValue instanceof String) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMATTER);
+                return LocalDateTime.parse(jsonValue.toString(), formatter);
+            }
+            if (jsonValue instanceof Long) {
+                return LocalDateTime.ofInstant(Instant.ofEpochMilli((Long) jsonValue), ZoneId.systemDefault());
+            }
+            return null;
+        }
+        if (fieldType == LocalDate.class) {
+            if (jsonValue instanceof String) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMATTER);
+                return LocalDate.parse(jsonValue.toString(), formatter);
+            }
+            return null;
+        }
 
-        throw new IllegalArgumentException("不支持的转换类型. Unsupported conversion from " + jsonValue.getClass() + " to " + fieldType);
+        throw new IllegalArgumentException("不支持的转换类型. 需要在 jsonConfig 中定制处理. Unsupported conversion from " + jsonValue.getClass() + " to " + fieldType);
     }
 }
 

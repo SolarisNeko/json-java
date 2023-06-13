@@ -3,11 +3,21 @@ package com.neko233.json.serializer;
 import com.neko233.json.convert.JsonConfig;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 public class JsonSerializer {
 
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd 00:00:00");
     private JsonConfig jsonConfig;
 
     public JsonSerializer(JsonConfig jsonConfig) {
@@ -16,32 +26,61 @@ public class JsonSerializer {
 
     public String serialize(Object obj) {
         StringBuilder jsonBuilder = new StringBuilder();
-        serialize(obj, jsonBuilder);
+        this.serialize(obj, jsonBuilder);
         return jsonBuilder.toString();
     }
 
     private void serialize(Object obj,
                            StringBuilder jsonBuilder) {
         if (obj == null) {
+            jsonBuilder.append("null");
             return;
         }
 
-        if (obj == null) {
-            jsonBuilder.append("null");
-        } else if (obj instanceof String) {
+        // value
+        if (obj instanceof String) {
             // base
             jsonBuilder.append("\"").append(escapeString((String) obj)).append("\"");
-        } else if (obj instanceof Number || obj instanceof Boolean) {
+            return;
+        }
+        if (obj instanceof Number || obj instanceof Boolean) {
             // base
             jsonBuilder.append(obj.toString());
-        } else if (obj instanceof Collection<?>) {
-            serializeCollection((Collection<?>) obj, jsonBuilder);
-        } else if (obj instanceof Map<?, ?>) {
-            serializeMap((Map<?, ?>) obj, jsonBuilder);
-        } else {
-            serializeObject(obj, jsonBuilder);
+            return;
         }
+        if (obj instanceof Date) {
+            Date date = (Date) obj;
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String dateStr = simpleDateFormat.format(date);
+            jsonBuilder.append("\"").append(escapeString(dateStr)).append("\"");
+            return;
+        }
+        if (obj instanceof LocalDateTime) {
+            LocalDateTime dateTime = (LocalDateTime) obj;
+            String format = dateTime.format(DATE_TIME_FORMATTER);
+            jsonBuilder.append("\"").append(escapeString(format)).append("\"");
+            return;
+        }
+        if (obj instanceof LocalDate) {
+            LocalDate dateTime = (LocalDate) obj;
+            String format = dateTime.format(DATE_FORMATTER);
+            jsonBuilder.append("\"").append(escapeString(format)).append("\"");
+            return;
+        }
+
+        // collection
+        if (obj instanceof Collection<?>) {
+            serializeCollection((Collection<?>) obj, jsonBuilder);
+            return;
+        }
+        if (obj instanceof Map<?, ?>) {
+            serializeMap((Map<?, ?>) obj, jsonBuilder);
+            return;
+        }
+
+        serializeObject(obj, jsonBuilder);
     }
+
 
     private void serializeEnum(Enum<?> obj, StringBuilder jsonBuilder) {
         jsonBuilder.append("{");
@@ -101,6 +140,11 @@ public class JsonSerializer {
         boolean first = true;
 
         for (Field field : obj.getClass().getDeclaredFields()) {
+            // 判断字段是否为静态字段
+            if (Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+
             field.setAccessible(true);
 
             Object value;
@@ -127,10 +171,10 @@ public class JsonSerializer {
                 jsonBuilder.append(",");
             }
 
-            String escapeKey = escapeString(field.getName());
+            String jsonKey = escapeString(field.getName());
 
             // key
-            jsonBuilder.append("\"").append(escapeKey).append("\":");
+            jsonBuilder.append("\"").append(jsonKey).append("\":");
             // recursive
             serialize(value, jsonBuilder);
         }

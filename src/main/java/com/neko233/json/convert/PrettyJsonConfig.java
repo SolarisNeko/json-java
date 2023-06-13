@@ -4,7 +4,7 @@ package com.neko233.json.convert;
  * @author SolarisNeko
  * Date on 2023-06-02
  */
-public class PrettyJsonConfig implements JsonConfig {
+public class PrettyJsonConfig extends DefaultJsonConfig {
 
 
     public static final PrettyJsonConfig instance = new PrettyJsonConfig();
@@ -14,19 +14,4 @@ public class PrettyJsonConfig implements JsonConfig {
         return true;
     }
 
-    @Override
-    public boolean isConversionSupported(Class<?> targetType) {
-        return false;
-    }
-
-    @Override
-    public Object convertValue(Class<?> targetType,
-                               Object value) {
-        return null;
-    }
-
-    @Override
-    public void handleException(NoSuchFieldException e) throws RuntimeException {
-
-    }
 }

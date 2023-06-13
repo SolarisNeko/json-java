@@ -39,26 +39,27 @@ public class TextTokenUtils {
             char c = input.charAt(i);
 
             Boolean isInState = stateMap.get(c);
-            if (isInState == null) {
-                //  要删除的部分
-                if (toRemoveCharList.contains(c)) {
-                    continue;
-                }
-                result.append(c);
-                continue;
-            }
-
-            // 反转状态
-            stateMap.put(c, !isInState);
 
             boolean isInAnyState = isInAnyState(stateMap);
             if (specialCharArray.contains(c)) {
                 result.append(c);
+
+                // 反转状态
+                stateMap.put(c, !isInState);
                 continue;
             }
 
             // 特殊状态, 所有内容都接收
             if (isInAnyState) {
+                result.append(c);
+                continue;
+            }
+
+            if (isInState == null) {
+                //  要删除的部分
+                if (toRemoveCharList.contains(c)) {
+                    continue;
+                }
                 result.append(c);
                 continue;
             }

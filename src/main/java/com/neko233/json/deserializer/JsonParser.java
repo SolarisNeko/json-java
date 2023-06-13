@@ -62,7 +62,7 @@ public class JsonParser {
                 continue;
             }
 
-            String key = parseKey();
+            String key = parseString();
             // Skip the colon
             currentIndex++;
 
@@ -107,7 +107,7 @@ public class JsonParser {
         char currentChar = jsonString.charAt(currentIndex);
 
         if (currentChar == '\"') {
-            return parseKey();
+            return parseString();
         } else if (currentChar == '{') {
             return parseObject();
         } else if (currentChar == '[') {
@@ -117,8 +117,14 @@ public class JsonParser {
         }
     }
 
-    private String parseKey() {
-        currentIndex++; // 跳过开头的 '\"'
+    /**
+     * 解析字符串, 可以是 key / value
+     *
+     * @return 文本
+     */
+    private String parseString() {
+        // 跳过开头的 '\"'
+        currentIndex++;
         StringBuilder builder = new StringBuilder();
 
         while (currentIndex < jsonString.length()) {
@@ -136,6 +142,11 @@ public class JsonParser {
         return builder.toString();
     }
 
+    /**
+     * 解析原语
+     *
+     * @return value
+     */
     private Object parsePrimitive() {
         StringBuilder valueBuilder = new StringBuilder();
 
@@ -154,17 +165,23 @@ public class JsonParser {
 
         if (value.isEmpty()) {
             return null;
-        } else if (value.equals("true")) {
+        }
+        if (value.equalsIgnoreCase("null")) {
+            return null;
+        }
+        if (value.equalsIgnoreCase("true")) {
             return true;
-        } else if (value.equals("false")) {
+        }
+        if (value.equalsIgnoreCase("false")) {
             return false;
-        } else if (value.contains(".") || value.contains("e") || value.contains("E")) {
+        }
+        if (value.contains(".") || value.contains("e") || value.contains("E")) {
             // 小数, 优先
             return Double.parseDouble(value);
-        } else {
-            // 整数
-            return Long.parseLong(value);
         }
+
+        // 长整数
+        return Long.parseLong(value);
     }
 
 }

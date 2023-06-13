@@ -1,8 +1,9 @@
 package com.neko233.json;
 
-import com.neko233.json.data.TestSpeedPerson;
+import com.neko233.json.data.DateData;
 import com.neko233.json.data.SetElement;
 import com.neko233.json.data.SubAction;
+import com.neko233.json.data.TestSpeedPerson;
 import com.neko233.json.enumData.EnumProperty;
 import com.neko233.json.enumData.EnumUser;
 import com.neko233.json.parameterizedData.ParameterizedUser;
@@ -11,6 +12,10 @@ import com.neko233.json.utils.ListUtilsForJson;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -76,7 +81,6 @@ public class JSONTest {
     public void serialize() {
 
         String json = JSON.serialize(testSpeedPerson);
-        System.out.println(json);
 
         Assert.assertEquals(
                 "{\"name\":\"neko233\",\"age\":18,\"subActionList\":[{\"name\":\"a1\"},{\"name\":\"a2\"}],\"setElementSet\":[{\"money\":100.01}]}",
@@ -85,15 +89,33 @@ public class JSONTest {
     }
 
     @Test
-    public void serializeToBytes() {
+    public void serialize_base_array() {
+
+//        boolean assignableFrom = Integer.class.isAssignableFrom(Number.class);
+//        Assert.assertEquals(true, assignableFrom);
+
+        List<Integer> integers = JSON.deserializeArray("[1,2,3]", Integer.class);
+
+        Assert.assertEquals(Integer.valueOf(1), integers.get(0));
+        Assert.assertEquals(Integer.valueOf(2), integers.get(1));
     }
 
-    @Test
-    public void testSerializeToBytes() {
-    }
 
     @Test
-    public void deserialize() {
+    public void serialize_date() throws Exception {
+        DateData build = DateData.builder()
+                .date(new Date(1685548800000L))
+                .localDateTime(LocalDateTime.of(2023, 1, 1, 0, 0, 0))
+                .localDate(LocalDate.of(2023, 1, 1))
+                .build();
+        String serialize = JSON.serialize(build);
+        Assert.assertEquals("{\"date\":\"2023-06-01 00:00:00\",\"localDateTime\":\"2023-01-01 00:00:00\",\"localDate\":\"2023-01-01 00:00:00\",\"localTime\":null,\"nullData\":null}", serialize);
+
+        DateData reTestSpeedPerson = JSON.deserialize(serialize, DateData.class);
+
+        Assert.assertEquals(1685548800000L, reTestSpeedPerson.getDate().getTime());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Assert.assertEquals("2023-01-01 00:00:00", reTestSpeedPerson.getLocalDateTime().format(formatter));
     }
 
 

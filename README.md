@@ -2,7 +2,9 @@
 
 ## Introduction
 
-朴素的 JSON 序列化工具.
+朴素的 JSON 序列化工具. 基于 Field 实现.
+
+速度不快, 只是避免较多反序列化漏洞而诞生. 
 
 支持类型:
 
@@ -10,6 +12,7 @@
 2. 支持 enum
 3. 支持 范型 <T> (But @author 不推荐使用)
 4. 支持 pretty
+5. 各种日期, 序列化成 string = "yyyy-MM-dd HH:mm:ss" 格式
 
 推荐:
 
@@ -26,14 +29,14 @@
 <dependency>
     <groupId>com.neko233</groupId>
     <artifactId>json-java</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
 </dependency>
 ```
 
 ## gradle
 
 ```kotlin
-implementation("com.neko233:json-java:0.0.2")
+implementation("com.neko233:json-java:0.0.3")
 
 ```
 
@@ -42,24 +45,25 @@ implementation("com.neko233:json-java:0.0.2")
 ![jmh-metrics-by-ms.png](jmh-metrics-by-ms.png)
 
 测速结论:
+
 1. 线性增长耗时。
 
 单个 object serialize ~= 100w+/s
 单个 object serialize + deserialize ~= 30+w/s
 数组 object serialize + deserialize ~= 100w+ / n 个对象 /s
- 3 object List ~= 32w+/s
+3 object List ~= 32w+/s
 数组 object serialize + deserialize ~= 30+w / n 个对象 /s
- 3 object list ~= 10w+/s
+3 object list ~= 10w+/s
 
 ## JDK Compatibility | JDK 版本支持
 
 Latest supported versions:
 
-JDK 8 = 0.0.2
+JDK 8 = 0.0.3
 
-JDK 11 = 0.0.2
+JDK 11 = 0.0.3
 
-JDK 17 = 0.0.2
+JDK 17 = 0.0.3
 
 ## Key Terminology | 术语
 
@@ -79,7 +83,7 @@ json-java is licensed under Apache 2.0.
 <dependency>
     <groupId>com.neko233</groupId>
     <artifactId>json-java</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
 </dependency>
 
 ```
@@ -87,7 +91,7 @@ json-java is licensed under Apache 2.0.
 ### Gradle
 
 ```groovy
-implementation group: 'com.neko233', name: 'json-java', version: '0.0.2'
+implementation group: 'com.neko233', name: 'json-java', version: '0.0.3'
 ```
 
 # Code
