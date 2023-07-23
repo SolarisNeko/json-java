@@ -5,7 +5,7 @@
 
     <groupId>com.neko233</groupId>
     <artifactId>json-java</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 
     <name>json-java</name>
     <url>https://github.com/SolarisNeko/json-java/tree/main</url>
