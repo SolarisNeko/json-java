@@ -29,14 +29,14 @@
 <dependency>
     <groupId>com.neko233</groupId>
     <artifactId>json-java</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
 ## gradle
 
 ```kotlin
-implementation("com.neko233:json-java:0.1.0")
+implementation("com.neko233:json-java:0.2.0")
 
 ```
 
@@ -59,11 +59,11 @@ implementation("com.neko233:json-java:0.1.0")
 
 Latest supported versions:
 
-JDK 8 = 0.1.0
+JDK 8 = 0.2.0
 
-JDK 11 = 0.1.0
+JDK 11 = 0.2.0
 
-JDK 17 = 0.1.0
+JDK 17 = 0.2.0
 
 ## Key Terminology | 术语
 
@@ -83,7 +83,7 @@ json-java is licensed under Apache 2.0.
 <dependency>
     <groupId>com.neko233</groupId>
     <artifactId>json-java</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 
 ```
@@ -91,7 +91,7 @@ json-java is licensed under Apache 2.0.
 ### Gradle
 
 ```groovy
-implementation group: 'com.neko233', name: 'json-java', version: '0.1.0'
+implementation group: 'com.neko233', name: 'json-java', version: '0.2.0'
 ```
 
 # Code

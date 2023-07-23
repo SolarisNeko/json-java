@@ -109,7 +109,7 @@ public class JsonJmhTest {
      */
     @Benchmark
     public void test_array_speed_just_serialize() {
-        JSON.serialize(testSpeedPersonList);
+        Json233.serialize(testSpeedPersonList);
     }
 
     /**
@@ -118,8 +118,8 @@ public class JsonJmhTest {
      */
     @Benchmark
     public void test_jsonArray_speed_serialize_and_deserialize() throws Exception {
-        String serialize = JSON.serialize(testSpeedPersonList);
-        List<TestSpeedPerson> reTestSpeedPersonData = JSON.deserializeArray(serialize, TestSpeedPerson.class);
+        String serialize = Json233.serialize(testSpeedPersonList);
+        List<TestSpeedPerson> reTestSpeedPersonData = Json233.deserializeArray(serialize, TestSpeedPerson.class);
 
     }
 
@@ -129,8 +129,8 @@ public class JsonJmhTest {
      */
     @Benchmark
     public void test_singleObject_speed_serialize_and_deserialize() throws Exception {
-        String serialize = JSON.serialize(testSpeedPerson);
-        TestSpeedPerson reTestSpeedPerson = JSON.deserialize(serialize, TestSpeedPerson.class);
+        String serialize = Json233.serialize(testSpeedPerson);
+        TestSpeedPerson reTestSpeedPerson = Json233.deserialize(serialize, TestSpeedPerson.class);
 
     }
 
@@ -140,7 +140,7 @@ public class JsonJmhTest {
     @Benchmark
     public void test_singleObject_speed_serialize() throws Exception {
 
-        String serialize = JSON.serialize(testSpeedPerson);
+        String serialize = Json233.serialize(testSpeedPerson);
 
     }
 }

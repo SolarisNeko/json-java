@@ -25,7 +25,7 @@ import java.util.Map;
  * @author SolarisNeko
  * Date on 2023-06-02
  */
-public class JSONTest {
+public class Json233Test {
 
     TestSpeedPerson testSpeedPerson;
 
@@ -53,7 +53,7 @@ public class JSONTest {
     @Test
     public void serialize_pretty() {
 
-        String json = JSON.serializePretty(testSpeedPerson);
+        String json = Json233.serializePretty(testSpeedPerson);
         System.out.println(json);
 
         Assert.assertEquals(
@@ -82,7 +82,7 @@ public class JSONTest {
     @Test
     public void serialize() {
 
-        String json = JSON.serialize(testSpeedPerson);
+        String json = Json233.serialize(testSpeedPerson);
 
         Assert.assertEquals(
                 "{\"name\":\"neko233\",\"age\":18,\"subActionList\":[{\"name\":\"a1\"},{\"name\":\"a2\"}],\"setElementSet\":[{\"money\":100.01}]}",
@@ -96,7 +96,7 @@ public class JSONTest {
 //        boolean assignableFrom = Integer.class.isAssignableFrom(Number.class);
 //        Assert.assertEquals(true, assignableFrom);
 
-        List<Integer> integers = JSON.deserializeArray("[1,2,3]", Integer.class);
+        List<Integer> integers = Json233.deserializeArray("[1,2,3]", Integer.class);
 
         Assert.assertEquals(Integer.valueOf(1), integers.get(0));
         Assert.assertEquals(Integer.valueOf(2), integers.get(1));
@@ -110,10 +110,10 @@ public class JSONTest {
                 .localDateTime(LocalDateTime.of(2023, 1, 1, 0, 0, 0))
                 .localDate(LocalDate.of(2023, 1, 1))
                 .build();
-        String serialize = JSON.serialize(build);
+        String serialize = Json233.serialize(build);
         Assert.assertEquals("{\"date\":\"2023-06-01 00:00:00\",\"localDateTime\":\"2023-01-01 00:00:00\",\"localDate\":\"2023-01-01 00:00:00\",\"localTime\":null,\"nullData\":null}", serialize);
 
-        DateData reTestSpeedPerson = JSON.deserialize(serialize, DateData.class);
+        DateData reTestSpeedPerson = Json233.deserialize(serialize, DateData.class);
 
         Assert.assertEquals(1685548800000L, reTestSpeedPerson.getDate().getTime());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -123,8 +123,8 @@ public class JSONTest {
 
     @Test
     public void testDeserialize() throws Exception {
-        String serialize = JSON.serialize(testSpeedPerson);
-        TestSpeedPerson reTestSpeedPerson = JSON.deserialize(serialize, TestSpeedPerson.class);
+        String serialize = Json233.serialize(testSpeedPerson);
+        TestSpeedPerson reTestSpeedPerson = Json233.deserialize(serialize, TestSpeedPerson.class);
 
         System.out.println("original = " + testSpeedPerson);
         System.out.println("deserialize = " + reTestSpeedPerson);
@@ -135,7 +135,7 @@ public class JSONTest {
     @Test
     public void serialize_Array() {
         List<String> of = ListUtilsForJson.of("a", "b");
-        String serialize = JSON.serialize(of);
+        String serialize = Json233.serialize(of);
 
         Assert.assertEquals("[\"a\",\"b\"]", serialize);
     }
@@ -144,7 +144,7 @@ public class JSONTest {
     public void deserialize_Array() throws Exception {
         String json = "[\"a\",\"b\"]";
 
-        List<String> deserialize = JSON.deserializeArray(json, String.class);
+        List<String> deserialize = Json233.deserializeArray(json, String.class);
         Assert.assertEquals("a", deserialize.get(0));
     }
 
@@ -160,7 +160,7 @@ public class JSONTest {
                         .enumField(EnumProperty.B)
                         .build()
         );
-        String serialize = JSON.serialize(of);
+        String serialize = Json233.serialize(of);
 
         Assert.assertEquals("[{\"userId\":1,\"enumField\":0},{\"userId\":2,\"enumField\":1}]", serialize);
     }
@@ -169,7 +169,7 @@ public class JSONTest {
     public void deserialize_objArray() throws Exception {
         String json = "[{\"userId\":1,\"enumField\":\"A\"},{\"userId\":2,\"enumField\":\"B\"}]";
 
-        List<EnumUser> deserialize = JSON.deserializeArray(json, EnumUser.class);
+        List<EnumUser> deserialize = Json233.deserializeArray(json, EnumUser.class);
         Assert.assertEquals(1, deserialize.get(0).getUserId());
         Assert.assertEquals(EnumProperty.A, deserialize.get(0).getEnumField());
 
@@ -188,7 +188,7 @@ public class JSONTest {
                         .data("ok")
                         .build()
         );
-        String serialize = JSON.serialize(of);
+        String serialize = Json233.serialize(of);
 
         Assert.assertEquals("[{\"userId\":1,\"data\":\"ok\"}]", serialize);
     }
@@ -201,7 +201,7 @@ public class JSONTest {
         // 范型保留
         JsonTypeRef<ParameterizedUser<String>> jsonTypeRef = new JsonTypeRef<ParameterizedUser<String>>() {
         };
-        ParameterizedUser<String> deserialize = JSON.deserialize(json, jsonTypeRef);
+        ParameterizedUser<String> deserialize = Json233.deserialize(json, jsonTypeRef);
 
         Assert.assertEquals(1, deserialize.getUserId());
         Assert.assertEquals("ok", deserialize.getData());
@@ -214,14 +214,14 @@ public class JSONTest {
         enumUser.setUserId(1);
 
 
-        String serialize = JSON.serialize(enumUser);
+        String serialize = Json233.serialize(enumUser);
         Assert.assertEquals("{\"userId\":1,\"enumField\":1}", serialize);
     }
 
     @Test
     public void deserialize_enum() throws Exception {
         String json = "{\"userId\":1,\"enumField\":1}";
-        EnumUser deserialize = JSON.deserialize(json, EnumUser.class);
+        EnumUser deserialize = Json233.deserialize(json, EnumUser.class);
 
         Assert.assertEquals(1, deserialize.getUserId());
         Assert.assertEquals(EnumProperty.B, deserialize.getEnumField());
@@ -231,7 +231,7 @@ public class JSONTest {
     @Test
     public void jsonToRefMap() throws Exception {
         String json = "{\"userId\":1,\"username\":\"demo\"}";
-        Map<String, Object> map = JSON.deserialize(json, new JsonTypeRef<Map<String, Object>>() {
+        Map<String, Object> map = Json233.deserialize(json, new JsonTypeRef<Map<String, Object>>() {
         });
 
         Assert.assertEquals(1L, map.get("userId"));
@@ -241,7 +241,7 @@ public class JSONTest {
     @Test
     public void jsonToMap() throws Exception {
         String json = "{\"userId\":1,\"username\":\"demo\"}";
-        Map<String, Object> map = JSON.deserialize(json, Map.class);
+        Map<String, Object> map = Json233.deserialize(json, Map.class);
 
         Assert.assertEquals(1L, map.get("userId"));
         Assert.assertEquals("demo", map.get("username"));
@@ -259,10 +259,10 @@ public class JSONTest {
         );
 
 
-        String jsonArray = JSON.serialize(of);
+        String jsonArray = Json233.serialize(of);
         Assert.assertEquals("[{\"age\":18,\"username\":\"a1\"},{\"age\":22,\"username\":\"a2\"}]", jsonArray);
 
-        List<Map<String, Object>> deserialize = JSON.deserializeArray(jsonArray);
+        List<Map<String, Object>> deserialize = Json233.deserializeArray(jsonArray);
         Map<String, Object> kv1 = deserialize.get(0);
         Assert.assertEquals(kv1.get("username"), "a1");
         Assert.assertEquals(kv1.get("age"), 18L);
