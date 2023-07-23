@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * @author SolarisNeko
  * Date on 2023-06-02
  */
-public interface Json233 {
+public interface JSON {
 
     /**
      * 序列化

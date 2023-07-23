@@ -89,13 +89,13 @@ public class JsonSpeedTest {
     public void test_array_speed_just_serialize() {
 
         for (int i = 0; i < 10000; i++) {
-            Json233.serialize(testSpeedPersonList);
+            JSON.serialize(testSpeedPersonList);
         }
 
         int count = 0;
         long startMs = System.currentTimeMillis();
         while (true) {
-            Json233.serialize(testSpeedPersonList);
+            JSON.serialize(testSpeedPersonList);
             count++;
 
             long endMs = System.currentTimeMillis();
@@ -116,15 +116,15 @@ public class JsonSpeedTest {
     public void test_jsonArray_speed_serialize_and_deserialize() throws Exception {
 
         for (int i = 0; i < 10000; i++) {
-            String serialize = Json233.serialize(testSpeedPersonList);
-            List<TestSpeedPerson> reTestSpeedPersonData = Json233.deserializeArray(serialize, TestSpeedPerson.class);
+            String serialize = JSON.serialize(testSpeedPersonList);
+            List<TestSpeedPerson> reTestSpeedPersonData = JSON.deserializeArray(serialize, TestSpeedPerson.class);
         }
 
         int count = 0;
         long startMs = System.currentTimeMillis();
         while (true) {
-            String serialize = Json233.serialize(testSpeedPersonList);
-            List<TestSpeedPerson> reTestSpeedPersonData = Json233.deserializeArray(serialize, TestSpeedPerson.class);
+            String serialize = JSON.serialize(testSpeedPersonList);
+            List<TestSpeedPerson> reTestSpeedPersonData = JSON.deserializeArray(serialize, TestSpeedPerson.class);
             count++;
 
             long endMs = System.currentTimeMillis();
@@ -145,15 +145,15 @@ public class JsonSpeedTest {
     public void test_singleObject_speed_serialize_and_deserialize() throws Exception {
 
         for (int i = 0; i < 10000; i++) {
-            String serialize = Json233.serialize(testSpeedPerson);
-            TestSpeedPerson reTestSpeedPerson = Json233.deserialize(serialize, TestSpeedPerson.class);
+            String serialize = JSON.serialize(testSpeedPerson);
+            TestSpeedPerson reTestSpeedPerson = JSON.deserialize(serialize, TestSpeedPerson.class);
         }
 
         int count = 0;
         long startMs = System.currentTimeMillis();
         while (true) {
-            String serialize = Json233.serialize(testSpeedPerson);
-            TestSpeedPerson reTestSpeedPerson = Json233.deserialize(serialize, TestSpeedPerson.class);
+            String serialize = JSON.serialize(testSpeedPerson);
+            TestSpeedPerson reTestSpeedPerson = JSON.deserialize(serialize, TestSpeedPerson.class);
             count++;
 
             long endMs = System.currentTimeMillis();
@@ -173,13 +173,13 @@ public class JsonSpeedTest {
     public void test_singleObject_speed_serialize() throws Exception {
 
         for (int i = 0; i < 10000; i++) {
-            String serialize = Json233.serialize(testSpeedPerson);
+            String serialize = JSON.serialize(testSpeedPerson);
         }
 
         int count = 0;
         long startMs = System.currentTimeMillis();
         while (true) {
-            String serialize = Json233.serialize(testSpeedPerson);
+            String serialize = JSON.serialize(testSpeedPerson);
             count++;
 
             long endMs = System.currentTimeMillis();
