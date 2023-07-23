@@ -31,8 +31,18 @@ public class BeanJsonOrmUtils {
         return mapToBean(map, clazz, null);
     }
 
+    /**
+     * Map 暂时只能 Map<String, Object>
+     *
+     * @param map   解析后的对象
+     * @param clazz 类
+     * @return Map
+     */
     public static <T> T mapToBean(Map<String, Object> map,
                                   Class<T> clazz) throws Exception {
+        if (clazz == Map.class) {
+            return (T) map;
+        }
         return mapToBean(map, clazz, null);
     }
 

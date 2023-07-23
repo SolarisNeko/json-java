@@ -12,6 +12,7 @@ import com.neko233.json.typeRef.JsonTypeRef;
 import com.neko233.json.utils.BeanJsonOrmUtils;
 import com.neko233.json.utils.CollectionUtilsForJson;
 import org.jetbrains.annotations.Nullable;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
@@ -103,14 +104,22 @@ public interface JSON {
         if (CollectionUtilsForJson.isEmpty(mapList)) {
             return null;
         }
-        Map<String, Object> stringObjectMap = mapList.get(0);
+        Map<String, Object> kvMap = mapList.get(0);
         Type genericType = jsonTypeRef.getType();
+
+        Class<?> rawType = ((ParameterizedTypeImpl) genericType).getRawType();
+        if (rawType == Map.class) {
+            return (T) kvMap;
+        }
         if (genericType == null) {
+            return null;
+        }
+        if (rawType == null) {
             return null;
         }
         try {
             Object instance = GenericTypeFactory.createInstance(genericType);
-            return (T) BeanJsonOrmUtils.mapToBean(stringObjectMap, instance.getClass());
+            return (T) BeanJsonOrmUtils.mapToBean(kvMap, instance.getClass());
         } catch (Exception e) {
             throw new DeserializeJsonException(e);
         }
@@ -137,8 +146,14 @@ public interface JSON {
             return null;
         }
 
+
         JsonParser jsonParser = new JsonParser();
         List<Map<String, Object>> maps = jsonParser.parseJson(text);
+
+        if (clazz == Map.class) {
+            return (List<T>) maps;
+        }
+
         return maps.stream()
                 .map(map -> {
                     try {
@@ -150,6 +165,8 @@ public interface JSON {
                 .collect(Collectors.toList());
     }
 
+
+    @SuppressWarnings("uncheck")
     static <T> T deserialize(String text,
                              Class<T> clazz) throws Exception {
         if (text == null || text.isEmpty()) {
@@ -162,6 +179,9 @@ public interface JSON {
             return null;
         }
         Map<String, Object> map = mapList.get(0);
+        if (clazz == null) {
+            return (T) map;
+        }
         if (map == null) {
             return null;
         }

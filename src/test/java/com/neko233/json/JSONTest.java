@@ -9,6 +9,7 @@ import com.neko233.json.enumData.EnumUser;
 import com.neko233.json.parameterizedData.ParameterizedUser;
 import com.neko233.json.typeRef.JsonTypeRef;
 import com.neko233.json.utils.ListUtilsForJson;
+import com.neko233.skilltree.commons.core.base.MapUtils233;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author SolarisNeko
@@ -223,5 +225,46 @@ public class JSONTest {
 
         Assert.assertEquals(1, deserialize.getUserId());
         Assert.assertEquals(EnumProperty.B, deserialize.getEnumField());
+    }
+
+
+    @Test
+    public void jsonToRefMap() throws Exception {
+        String json = "{\"userId\":1,\"username\":\"demo\"}";
+        Map<String, Object> map = JSON.deserialize(json, new JsonTypeRef<Map<String, Object>>() {
+        });
+
+        Assert.assertEquals(1L, map.get("userId"));
+        Assert.assertEquals("demo", map.get("username"));
+    }
+
+    @Test
+    public void jsonToMap() throws Exception {
+        String json = "{\"userId\":1,\"username\":\"demo\"}";
+        Map<String, Object> map = JSON.deserialize(json, Map.class);
+
+        Assert.assertEquals(1L, map.get("userId"));
+        Assert.assertEquals("demo", map.get("username"));
+    }
+
+    @Test
+    public void ListToJsonArray() throws Exception {
+        List<Map<String, Object>> of = ListUtilsForJson.of(
+                MapUtils233.of("username", "a1",
+                        "age", 18
+                ),
+                MapUtils233.of("username", "a2",
+                        "age", 22
+                )
+        );
+
+
+        String jsonArray = JSON.serialize(of);
+        Assert.assertEquals("[{\"age\":18,\"username\":\"a1\"},{\"age\":22,\"username\":\"a2\"}]", jsonArray);
+
+        List<Map<String, Object>> deserialize = JSON.deserializeArray(jsonArray);
+        Map<String, Object> kv1 = deserialize.get(0);
+        Assert.assertEquals(kv1.get("username"), "a1");
+        Assert.assertEquals(kv1.get("age"), 18L);
     }
 }
